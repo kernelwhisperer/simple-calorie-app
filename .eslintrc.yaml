@@ -1,0 +1,35 @@
+env:
+  browser: true
+  es2020: true
+extends:
+  - standard
+  - react-app
+  - react-app/jest
+  - eslint:recommended
+  - plugin:react/recommended
+  - plugin:prettier/recommended
+  - prettier
+  - "plugin:@typescript-eslint/recommended"
+ignorePatterns:
+  - build/**/*
+  - package-lock.json
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+  ecmaVersion: 11
+  sourceType: module
+plugins:
+  - react
+  - prettier
+  - "@typescript-eslint"
+settings:
+  react:
+    version: detect
+rules:
+  no-unused-vars: warn
+  prettier/prettier: warn
+  sort-imports: [warn, { allowSeparatedGroups: true }]
+  sort-keys: warn
+  sort-vars: warn
+  "@typescript-eslint/member-ordering":
+    [warn, { default: { order: alphabetically } }]
