@@ -1,7 +1,7 @@
 import { Button, Stack, TextField } from "@mui/material";
 import React, { useCallback, useState } from "react";
 import DateTimePicker from "@mui/lab/DateTimePicker";
-import SendIcon from "@mui/icons-material/Send";
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
 //
 import { FoodEntry } from "../api/food-entries.service";
 import { noop } from "../utils";
@@ -104,7 +104,7 @@ export function FoodEntryForm(props: FoodEntryFormProps) {
         value={calories}
         onChange={(event) => setCalories(event.target.value)}
       />
-      <Button onClick={handleClick} endIcon={<SendIcon />}>
+      <Button onClick={handleClick} endIcon={<SendRoundedIcon />}>
         Add food entry
       </Button>
     </Stack>

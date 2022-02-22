@@ -2,6 +2,8 @@ import {
   Timestamp,
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
   getFirestore,
 } from "firebase/firestore";
@@ -38,4 +40,12 @@ export async function createFoodEntry(newEntry: FoodEntry) {
   const docRef = await addDoc(collection(db, "food-entries"), data);
   console.log("Document written with ID: ", docRef.id);
   return docRef.id;
+}
+
+export async function deleteFoodEntry(foodEntryId: string) {
+  const db = getFirestore();
+  const foodEntryRef = doc(db, "food-entries", foodEntryId);
+  await deleteDoc(foodEntryRef);
+  console.log("Document deleted with ID: ", foodEntryId);
+  return foodEntryId;
 }
