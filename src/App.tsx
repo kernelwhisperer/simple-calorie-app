@@ -3,8 +3,11 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { Box, ThemeProvider, createTheme } from "@mui/material";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import CssBaseline from "@mui/material/CssBaseline";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import React from "react";
+import { SnackbarProvider } from "notistack";
 //
 import { FrontPage } from "./pages/FrontPage";
 import { initFirebase } from "./api/firebase";
@@ -20,7 +23,6 @@ const theme = createTheme({
     // },
   },
 });
-console.log("📜 LOG > theme", theme);
 
 export function App() {
   initFirebase();
@@ -29,7 +31,11 @@ export function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ bgcolor: "background.default" }}>
-        <FrontPage />
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <SnackbarProvider>
+            <FrontPage />
+          </SnackbarProvider>
+        </LocalizationProvider>
       </Box>
     </ThemeProvider>
   );

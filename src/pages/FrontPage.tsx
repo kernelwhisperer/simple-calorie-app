@@ -1,6 +1,9 @@
 import {
   Box,
+  CircularProgress,
+  Fade,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -8,49 +11,86 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { FoodEntry, getFoodEntries } from "../api/food-entries.service";
 import React, { useCallback, useEffect, useState } from "react";
+import { useSnackbar } from "notistack";
+//
+import {
+  FoodEntry,
+  createFoodEntry,
+  getFoodEntries,
+} from "../api/food-entries.service";
+import { FoodEntryForm } from "../components/FoodEntryForm";
 
 export function FrontPage() {
+  const { enqueueSnackbar } = useSnackbar();
+
+  const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState<FoodEntry[]>([]);
 
   const fetchFoodEntries = useCallback(async () => {
+    setIsLoading(true);
     const foodEntries = await getFoodEntries();
     setList(foodEntries);
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
     fetchFoodEntries();
   }, [fetchFoodEntries]);
 
+  const handleSubmit = useCallback(
+    async (newEntry: FoodEntry) => {
+      try {
+        await createFoodEntry(newEntry);
+        enqueueSnackbar("New food entry saved", {
+          variant: "success",
+        });
+        return true;
+      } catch (err) {
+        if (err instanceof TypeError) {
+          enqueueSnackbar(err.toString(), {
+            variant: "error",
+          });
+        }
+      }
+      return false;
+    },
+    [enqueueSnackbar]
+  );
+
   return (
-    <Box sx={{ p: 4 }}>
-      {/* <Button>Hello world</Button> */}
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ width: "200px" }}>Datetime</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell align="right">Calories</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {list.map((item) => (
-              <TableRow
-                key={item.name}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell>
-                  {new Date(item.timestamp.seconds).toLocaleString()}
-                </TableCell>
-                <TableCell>{item.name}</TableCell>
-                <TableCell align="right">{item.calories}</TableCell>
+    <Stack spacing={2} sx={{ p: 4 }}>
+      <FoodEntryForm onSubmit={handleSubmit} />
+      {isLoading && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <CircularProgress />
+        </Box>
+      )}
+      <Fade in={!isLoading}>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ width: "200px" }}>Date & time</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell align="right">Calories</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+            </TableHead>
+            <TableBody>
+              {list.map((item) => (
+                <TableRow
+                  key={item.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell>{item.timestamp.toLocaleString()}</TableCell>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell align="right">{item.calories}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Fade>
+    </Stack>
   );
 }
