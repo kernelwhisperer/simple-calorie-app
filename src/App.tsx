@@ -7,6 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import React from "react";
 //
 import { FrontPage } from "./pages/FrontPage";
+import { initFirebase } from "./api/firebase";
 
 const theme = createTheme({
   palette: {
@@ -22,6 +23,8 @@ const theme = createTheme({
 console.log("📜 LOG > theme", theme);
 
 export function App() {
+  initFirebase();
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

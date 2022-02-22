@@ -8,25 +8,21 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import React from "react";
-
-function createData(name, calories) {
-  return {
-    calories,
-    name,
-    timestamp: new Date().toLocaleString(),
-  };
-}
-
-const rows = [
-  createData("Frozen yoghurt", 159),
-  createData("Ice cream sandwich", 237),
-  createData("Eclair", 262),
-  createData("Cupcake", 305),
-  createData("Gingerbread", 356),
-];
+import { FoodEntry, getFoodEntries } from "../api/food-entries.service";
+import React, { useCallback, useEffect, useState } from "react";
 
 export function FrontPage() {
+  const [list, setList] = useState<FoodEntry[]>([]);
+
+  const fetchFoodEntries = useCallback(async () => {
+    const foodEntries = await getFoodEntries();
+    setList(foodEntries);
+  }, []);
+
+  useEffect(() => {
+    fetchFoodEntries();
+  }, [fetchFoodEntries]);
+
   return (
     <Box sx={{ p: 4 }}>
       {/* <Button>Hello world</Button> */}
@@ -34,20 +30,22 @@ export function FrontPage() {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Datetime</TableCell>
+              <TableCell sx={{ width: "200px" }}>Datetime</TableCell>
               <TableCell>Name</TableCell>
               <TableCell align="right">Calories</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
+            {list.map((item) => (
               <TableRow
-                key={row.name}
+                key={item.name}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell sx={{ width: "200px" }}>{row.timestamp}</TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
+                <TableCell>
+                  {new Date(item.timestamp.seconds).toLocaleString()}
+                </TableCell>
+                <TableCell>{item.name}</TableCell>
+                <TableCell align="right">{item.calories}</TableCell>
               </TableRow>
             ))}
           </TableBody>
