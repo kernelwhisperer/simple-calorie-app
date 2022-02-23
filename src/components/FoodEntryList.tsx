@@ -15,14 +15,16 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  alpha,
 } from "@mui/material";
 import {
   CancelRounded,
   DeleteRounded,
   FilterListRounded,
+  WarningRounded,
 } from "@mui/icons-material";
 import React, { useMemo, useState } from "react";
-import { add, compareAsc } from "date-fns";
+import { add, compareAsc, format } from "date-fns";
 import { animated, useSpring, useTransition } from "react-spring";
 import { DateRangePicker } from "@mui/lab";
 //
@@ -30,6 +32,8 @@ import { FoodEntry } from "../api/food-entries.service";
 import { noop } from "../utils";
 
 type FoodEntryListProps = {
+  calorieLimit?: number;
+  calorieMap: Record<string, number>;
   isLoading: boolean;
   list: FoodEntry[];
   onDelete?: (foodEntryId: string) => Promise<boolean>;
@@ -37,8 +41,17 @@ type FoodEntryListProps = {
 
 const AnimatedTableRow = animated(TableRow);
 
+const warningStyle = (theme) =>
+  alpha(theme.palette.warning.main, theme.palette.action.activatedOpacity);
+
 export function FoodEntryList(props: FoodEntryListProps) {
-  const { isLoading, list, onDelete = noop } = props;
+  const {
+    calorieLimit = 0,
+    calorieMap,
+    isLoading,
+    list,
+    onDelete = noop,
+  } = props;
 
   const [filtering, setFiltering] = useState(false);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
@@ -97,9 +110,9 @@ export function FoodEntryList(props: FoodEntryListProps) {
               onChange={setDateRange}
               renderInput={(startProps, endProps) => (
                 <Fade in={filtering}>
-                  <Stack direction="row" alignItems="baseline">
+                  <Stack direction="row" alignItems="baseline" spacing={2}>
                     <TextField size="small" {...startProps} />
-                    <Box sx={{ mx: 2 }}> to </Box>
+                    <span>to</span>
                     <TextField size="small" {...endProps} sx={{ mr: 2 }} />
                   </Stack>
                 </Fade>
@@ -123,35 +136,58 @@ export function FoodEntryList(props: FoodEntryListProps) {
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ width: "200px" }}>Date & time</TableCell>
+                  <TableCell sx={{ width: "208px" }}>Date & time</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell align="right">Calories</TableCell>
                   <TableCell align="right" sx={{ width: "160px" }}></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {transition((props, item) => (
-                  <AnimatedTableRow
-                    key={item.id}
-                    style={props}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell>{item.timestamp.toLocaleString()}</TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell align="right">{item.calories}</TableCell>
-                    <TableCell align="right">
-                      <IconButton
-                        aria-label="delete"
-                        onClick={() => {
-                          if (!item.id) return;
-                          onDelete(item.id);
-                        }}
-                      >
-                        <DeleteRounded />
-                      </IconButton>
-                    </TableCell>
-                  </AnimatedTableRow>
-                ))}
+                {transition((props, item) => {
+                  const calorieDelta =
+                    calorieMap[format(item.timestamp, "yyyy-MM-dd")] -
+                    calorieLimit;
+
+                  return (
+                    <AnimatedTableRow
+                      key={item.id}
+                      style={props}
+                      sx={{
+                        "&:last-child td, &:last-child th": { border: 0 },
+                        bgcolor: calorieDelta > 0 ? warningStyle : "",
+                      }}
+                    >
+                      <TableCell>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          {calorieDelta > 0 && (
+                            <Tooltip
+                              title={`You have exceeded the calorie limit for the day by ${calorieDelta}`}
+                            >
+                              <WarningRounded
+                                color="warning"
+                                fontSize="small"
+                              />
+                            </Tooltip>
+                          )}
+                          <span>{item.timestamp.toLocaleString()}</span>
+                        </Stack>
+                      </TableCell>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell align="right">{item.calories}</TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          aria-label="delete"
+                          onClick={() => {
+                            if (!item.id) return;
+                            onDelete(item.id);
+                          }}
+                        >
+                          <DeleteRounded />
+                        </IconButton>
+                      </TableCell>
+                    </AnimatedTableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

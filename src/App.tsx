@@ -10,6 +10,8 @@ import React from "react";
 import { SnackbarProvider } from "notistack";
 //
 import { FrontPage } from "./pages/FrontPage";
+import { LoginPage } from "./pages/LoginPage";
+import { UserContextProvider } from "./context/UserContext";
 import { initFirebase } from "./api/firebase";
 
 const theme = createTheme({
@@ -33,7 +35,10 @@ export function App() {
       <Box sx={{ bgcolor: "background.default" }}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <SnackbarProvider>
-            <FrontPage />
+            <UserContextProvider>
+              <LoginPage />
+              <FrontPage />
+            </UserContextProvider>
           </SnackbarProvider>
         </LocalizationProvider>
       </Box>

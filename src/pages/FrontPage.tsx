@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Stack } from "@mui/material";
 import { useSnackbar } from "notistack";
 //
@@ -11,6 +17,8 @@ import {
 } from "../api/food-entries.service";
 import { FoodEntryForm } from "../components/FoodEntryForm";
 import { FoodEntryList } from "../components/FoodEntryList";
+import { format } from "date-fns";
+import { useUserContext } from "../context/UserContext";
 
 export function FrontPage() {
   const { enqueueSnackbar } = useSnackbar();
@@ -75,6 +83,19 @@ export function FrontPage() {
     [enqueueSnackbar]
   );
 
+  const calorieMap = useMemo(() => {
+    const calorieMap = {};
+
+    list.forEach((item) => {
+      const date = format(item.timestamp, "yyyy-MM-dd");
+      calorieMap[date] = (calorieMap[date] || 0) + item.calories;
+    });
+
+    return calorieMap;
+  }, [list]);
+
+  const [userState] = useUserContext();
+
   return (
     <Stack spacing={2} sx={{ p: 4 }}>
       <FoodEntryForm onSubmit={handleSubmit} />
@@ -82,6 +103,8 @@ export function FrontPage() {
         list={list}
         isLoading={isLoading}
         onDelete={handleDelete}
+        calorieMap={calorieMap}
+        calorieLimit={userState.profile?.calorieLimit}
       />
     </Stack>
   );
