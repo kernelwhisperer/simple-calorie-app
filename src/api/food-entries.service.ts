@@ -1,4 +1,5 @@
 import {
+  DocumentData,
   Timestamp,
   addDoc,
   collection,
@@ -6,6 +7,8 @@ import {
   doc,
   getDocs,
   getFirestore,
+  onSnapshot,
+  query,
 } from "firebase/firestore";
 
 export interface FoodEntry {
@@ -19,17 +22,8 @@ export async function getFoodEntries() {
   const db = getFirestore();
   const foodEntriesCol = collection(db, "food-entries");
   const foodEntriesSnapshot = await getDocs(foodEntriesCol);
-  return foodEntriesSnapshot.docs.map((doc) => {
-    const foodEntry = doc.data();
-
-    return {
-      id: doc.id,
-      ...foodEntry,
-      timestamp: foodEntry.timestamp.toDate(),
-    } as FoodEntry;
-  });
+  return foodEntriesSnapshot.docs.map(mapDocToFoodEntry);
 }
-
 export async function createFoodEntry(newEntry: FoodEntry) {
   const data = {
     ...newEntry,
@@ -48,4 +42,28 @@ export async function deleteFoodEntry(foodEntryId: string) {
   await deleteDoc(foodEntryRef);
   console.log("Document deleted with ID: ", foodEntryId);
   return foodEntryId;
+}
+
+export type onListUpdateType = (list: FoodEntry[]) => void;
+
+export async function subscribeToFoodEntries(onListUpdate: onListUpdateType) {
+  const db = getFirestore();
+  const foodEntriesCol = collection(db, "food-entries");
+  const q = query(foodEntriesCol);
+
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    onListUpdate(querySnapshot.docs.map(mapDocToFoodEntry));
+  });
+
+  return unsubscribe;
+}
+
+export function mapDocToFoodEntry(doc: DocumentData) {
+  const foodEntry = doc.data();
+
+  return {
+    id: doc.id,
+    ...foodEntry,
+    timestamp: foodEntry.timestamp.toDate(),
+  } as FoodEntry;
 }

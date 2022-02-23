@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Stack } from "@mui/material";
 import { useSnackbar } from "notistack";
 //
@@ -6,7 +6,7 @@ import {
   FoodEntry,
   createFoodEntry,
   deleteFoodEntry,
-  getFoodEntries,
+  subscribeToFoodEntries,
 } from "../api/food-entries.service";
 import { FoodEntryForm } from "../components/FoodEntryForm";
 import { FoodEntryList } from "../components/FoodEntryList";
@@ -16,17 +16,23 @@ export function FrontPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState<FoodEntry[]>([]);
+  const unsubscribeRef = useRef<() => void>();
 
-  const fetchFoodEntries = useCallback(async () => {
-    setIsLoading(true);
-    const foodEntries = await getFoodEntries();
-    setList(foodEntries);
-    setIsLoading(false);
-  }, []);
+  const subscribe = useCallback(async () => {
+    unsubscribeRef.current = await subscribeToFoodEntries((list) => {
+      setList(list);
+      setIsLoading(false);
+    });
+  }, [unsubscribeRef, setList, setIsLoading]);
 
   useEffect(() => {
-    fetchFoodEntries();
-  }, [fetchFoodEntries]);
+    subscribe();
+
+    return function cleanup() {
+      console.log("Unmounting FrontPage");
+      if (unsubscribeRef.current) unsubscribeRef.current();
+    };
+  }, [subscribe, unsubscribeRef]);
 
   const handleSubmit = useCallback(
     async (newEntry: FoodEntry) => {
