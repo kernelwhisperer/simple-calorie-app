@@ -10,10 +10,12 @@ import {
   onSnapshot,
   orderBy,
   query,
+  setDoc,
 } from "firebase/firestore";
 
 export interface FoodEntry {
   calories: number;
+  cheatDay: boolean;
   id: string;
   name: string;
   timestamp: Date;
@@ -34,6 +36,7 @@ export async function getFoodEntries() {
 export async function createFoodEntry(newEntry: NewFoodEntry) {
   const data = {
     ...newEntry,
+    cheatDay: false,
     timestamp: Timestamp.fromDate(newEntry.timestamp),
   };
 
@@ -41,6 +44,17 @@ export async function createFoodEntry(newEntry: NewFoodEntry) {
   const docRef = await addDoc(collection(db, "food-entries"), data);
   console.log("Document written with ID: ", docRef.id);
   return docRef.id;
+}
+
+export async function updateFoodEntry(
+  foodEntryId: string,
+  update: Partial<FoodEntry>
+) {
+  const db = getFirestore();
+  const foodEntryRef = doc(db, "food-entries", foodEntryId);
+  await setDoc(foodEntryRef, update, { merge: true });
+  console.log("Document updated with ID: ", foodEntryId);
+  return foodEntryId;
 }
 
 export async function deleteFoodEntry(foodEntryId: string) {

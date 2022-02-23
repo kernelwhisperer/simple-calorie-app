@@ -14,6 +14,7 @@ import {
   createFoodEntry,
   deleteFoodEntry,
   subscribeToFoodEntries,
+  updateFoodEntry,
 } from "../api/food-entries.service";
 import { FoodEntryForm } from "../components/FoodEntryForm";
 import { FoodEntryList } from "../components/FoodEntryList";
@@ -83,12 +84,33 @@ export function FrontPage() {
     [enqueueSnackbar]
   );
 
+  const handleUpdate = useCallback(
+    async (foodEntryId: string, update: Partial<FoodEntry>) => {
+      try {
+        await updateFoodEntry(foodEntryId, update);
+        enqueueSnackbar("Food entry updated", {
+          variant: "info",
+        });
+        return true;
+      } catch (err) {
+        if (err instanceof TypeError) {
+          enqueueSnackbar(err.toString(), {
+            variant: "error",
+          });
+        }
+      }
+      return false;
+    },
+    [enqueueSnackbar]
+  );
+
   const calorieMap = useMemo(() => {
     const calorieMap = {};
 
     list.forEach((item) => {
       const date = format(item.timestamp, "yyyy-MM-dd");
-      calorieMap[date] = (calorieMap[date] || 0) + item.calories;
+      calorieMap[date] = calorieMap[date] || 0;
+      if (!item.cheatDay) calorieMap[date] += item.calories;
     });
 
     return calorieMap;
@@ -103,6 +125,7 @@ export function FrontPage() {
         list={list}
         isLoading={isLoading}
         onDelete={handleDelete}
+        onUpdate={handleUpdate}
         calorieMap={calorieMap}
         calorieLimit={userState.profile?.calorieLimit}
       />

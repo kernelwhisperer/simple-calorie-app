@@ -1,5 +1,6 @@
 import {
   Box,
+  Checkbox,
   CircularProgress,
   Fade,
   IconButton,
@@ -37,6 +38,10 @@ type FoodEntryListProps = {
   isLoading: boolean;
   list: FoodEntry[];
   onDelete?: (foodEntryId: string) => Promise<boolean>;
+  onUpdate?: (
+    foodEntryId: string,
+    update: Partial<FoodEntry>
+  ) => Promise<boolean>;
 };
 
 const AnimatedTableRow = animated(TableRow);
@@ -51,6 +56,7 @@ export function FoodEntryList(props: FoodEntryListProps) {
     isLoading,
     list,
     onDelete = noop,
+    onUpdate = noop,
   } = props;
 
   const [filtering, setFiltering] = useState(false);
@@ -89,6 +95,7 @@ export function FoodEntryList(props: FoodEntryListProps) {
     leave: { opacity: 0 },
     trail: 400 / list.length,
   });
+
   return (
     <>
       {isLoading && (
@@ -139,7 +146,10 @@ export function FoodEntryList(props: FoodEntryListProps) {
                   <TableCell sx={{ width: "208px" }}>Date & time</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell align="right">Calories</TableCell>
-                  <TableCell align="right" sx={{ width: "160px" }}></TableCell>
+                  <TableCell align="right" sx={{ width: "120px" }}>
+                    Cheat-day
+                  </TableCell>
+                  <TableCell align="right" sx={{ width: "72px" }}></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -174,6 +184,18 @@ export function FoodEntryList(props: FoodEntryListProps) {
                       </TableCell>
                       <TableCell>{item.name}</TableCell>
                       <TableCell align="right">{item.calories}</TableCell>
+                      <TableCell align="right">
+                        <Checkbox
+                          color="primary"
+                          checked={item.cheatDay}
+                          onChange={() => {
+                            onUpdate(item.id, { cheatDay: !item.cheatDay });
+                          }}
+                          inputProps={{
+                            "aria-label": "mark as cheat-day",
+                          }}
+                        />
+                      </TableCell>
                       <TableCell align="right">
                         <IconButton
                           aria-label="delete"
