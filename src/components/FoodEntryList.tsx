@@ -1,7 +1,6 @@
 import {
   Box,
   CircularProgress,
-  Fade,
   IconButton,
   Paper,
   Table,
@@ -14,6 +13,7 @@ import {
 import DeleteIconRounded from "@mui/icons-material/DeleteRounded";
 import React from "react";
 //
+import { animated, useSpring, useTransition } from "react-spring";
 import { FoodEntry } from "../api/food-entries.service";
 import { noop } from "../utils";
 
@@ -23,8 +23,27 @@ type FoodEntryListProps = {
   onDelete?: (foodEntryId: string) => Promise<boolean>;
 };
 
+const AnimatedTableRow = animated(TableRow);
+
 export function FoodEntryList(props: FoodEntryListProps) {
   const { isLoading, list, onDelete = noop } = props;
+
+  const styles = useSpring({
+    config: { friction: 20 },
+    delay: 200,
+    opacity: isLoading ? 0 : 1,
+    transform: isLoading ? "scale(0.75, 0.75)" : "scale(1, 1)",
+  });
+
+  const transition = useTransition(list, {
+    config: { friction: 20 },
+    delay: 200,
+    enter: { opacity: 1 },
+    from: { opacity: 0 },
+    keys: (item) => item.id,
+    leave: { opacity: 0 },
+    trail: 400 / list.length,
+  });
 
   return (
     <>
@@ -33,7 +52,7 @@ export function FoodEntryList(props: FoodEntryListProps) {
           <CircularProgress />
         </Box>
       )}
-      <Fade in={!isLoading}>
+      <animated.div style={styles}>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
@@ -45,10 +64,14 @@ export function FoodEntryList(props: FoodEntryListProps) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {list.map((item) => (
-                <TableRow
+              {transition((props, item) => (
+                <AnimatedTableRow
                   key={item.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  style={props}
+                  sx={{
+                    overflow: "hidden",
+                    "&:last-child td, &:last-child th": { border: 0 },
+                  }}
                 >
                   <TableCell>{item.timestamp.toLocaleString()}</TableCell>
                   <TableCell>{item.name}</TableCell>
@@ -64,12 +87,12 @@ export function FoodEntryList(props: FoodEntryListProps) {
                       <DeleteIconRounded />
                     </IconButton>
                   </TableCell>
-                </TableRow>
+                </AnimatedTableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
-      </Fade>
+      </animated.div>
     </>
   );
 }

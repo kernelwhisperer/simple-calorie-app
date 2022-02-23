@@ -8,12 +8,18 @@ import {
   getDocs,
   getFirestore,
   onSnapshot,
+  orderBy,
   query,
 } from "firebase/firestore";
 
 export interface FoodEntry {
   calories: number;
-  id?: string;
+  id: string;
+  name: string;
+  timestamp: Date;
+}
+export interface NewFoodEntry {
+  calories: number;
   name: string;
   timestamp: Date;
 }
@@ -24,7 +30,8 @@ export async function getFoodEntries() {
   const foodEntriesSnapshot = await getDocs(foodEntriesCol);
   return foodEntriesSnapshot.docs.map(mapDocToFoodEntry);
 }
-export async function createFoodEntry(newEntry: FoodEntry) {
+
+export async function createFoodEntry(newEntry: NewFoodEntry) {
   const data = {
     ...newEntry,
     timestamp: Timestamp.fromDate(newEntry.timestamp),
@@ -49,7 +56,7 @@ export type onListUpdateType = (list: FoodEntry[]) => void;
 export async function subscribeToFoodEntries(onListUpdate: onListUpdateType) {
   const db = getFirestore();
   const foodEntriesCol = collection(db, "food-entries");
-  const q = query(foodEntriesCol);
+  const q = query(foodEntriesCol, orderBy("timestamp", "desc"));
 
   const unsubscribe = onSnapshot(q, (querySnapshot) => {
     onListUpdate(querySnapshot.docs.map(mapDocToFoodEntry));

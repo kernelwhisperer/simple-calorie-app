@@ -3,11 +3,11 @@ import React, { useCallback, useState } from "react";
 import DateTimePicker from "@mui/lab/DateTimePicker";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 //
-import { FoodEntry } from "../api/food-entries.service";
+import { NewFoodEntry } from "../api/food-entries.service";
 import { noop } from "../utils";
 
 type FoodEntryFormProps = {
-  onSubmit?: (newEntry: FoodEntry) => Promise<boolean>;
+  onSubmit?: (newEntry: NewFoodEntry) => Promise<boolean>;
 };
 
 export function FoodEntryForm(props: FoodEntryFormProps) {
@@ -77,9 +77,11 @@ export function FoodEntryForm(props: FoodEntryFormProps) {
       <DateTimePicker
         label="Date & time"
         value={timestamp}
+        maxDate={new Date()}
         onChange={setTimestamp}
         renderInput={(params) => (
           <TextField
+            sx={{ width: 260 }}
             {...params}
             error={!!timestampHelper}
             required

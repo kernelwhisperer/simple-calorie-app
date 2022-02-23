@@ -4,6 +4,7 @@ import { useSnackbar } from "notistack";
 //
 import {
   FoodEntry,
+  NewFoodEntry,
   createFoodEntry,
   deleteFoodEntry,
   subscribeToFoodEntries,
@@ -35,7 +36,7 @@ export function FrontPage() {
   }, [subscribe, unsubscribeRef]);
 
   const handleSubmit = useCallback(
-    async (newEntry: FoodEntry) => {
+    async (newEntry: NewFoodEntry) => {
       try {
         await createFoodEntry(newEntry);
         enqueueSnackbar("New food entry saved", {
