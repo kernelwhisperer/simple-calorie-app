@@ -8,9 +8,9 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Box } from "@mui/system";
+import { Link } from "react-router-dom";
 import { useSnackbar } from "notistack";
 //
 import {
@@ -26,24 +26,31 @@ export function LoginPage() {
   const [open, setOpen] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
-  const navigate = useNavigate();
   const [userState, setUserState] = useUserContext();
-  const { user } = userState;
+  const subscribing = useRef<boolean>(false);
 
   useEffect(() => {
     initAuth();
   }, []);
 
   useEffect(() => {
-    subscribeToAuthChanges((user, profile) => {
-      setUserState({ profile, user });
-      setOpen(false);
-      navigate("/", { replace: true });
-      enqueueSnackbar("Signed in", {
-        variant: "info",
-      });
+    if (subscribing.current) return;
+    subscribing.current = true;
+
+    const unsubscribeRef = subscribeToAuthChanges((user, profile) => {
+      setUserState({ initialized: true, profile, user });
+      if (user) {
+        setOpen(false);
+        enqueueSnackbar("Signed in", {
+          variant: "info",
+        });
+      }
     });
-  }, [navigate, setUserState, enqueueSnackbar, setOpen]);
+
+    return function cleanup() {
+      if (unsubscribeRef) unsubscribeRef();
+    };
+  }, [setUserState, enqueueSnackbar]);
 
   useEffect(() => {
     if (open) {
@@ -59,7 +66,7 @@ export function LoginPage() {
       enqueueSnackbar("Signed out", {
         variant: "info",
       });
-      setUserState({});
+      setUserState({ initialized: true });
     } catch (err) {
       if (err instanceof TypeError) {
         enqueueSnackbar(err.toString(), {
@@ -83,18 +90,18 @@ export function LoginPage() {
             >
               Simple Calorie App
             </Typography>
-            {!user && (
+            {userState.initialized && !userState.user && (
               <Button color="inherit" onClick={() => setOpen(true)}>
                 Login
               </Button>
             )}
-            {user && (
+            {userState.user && (
               <Stack direction="row" spacing={2}>
                 <Button color="inherit" onClick={handleSignout}>
                   Sign out
                 </Button>
                 <Avatar sx={{ bgcolor: "primary.main" }}>
-                  {computeInitials(user.displayName)}
+                  {computeInitials(userState.user.displayName)}
                 </Avatar>
               </Stack>
             )}

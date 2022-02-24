@@ -3,10 +3,12 @@ import { User } from "firebase/auth";
 
 export type UserProfile = {
   calorieLimit: number;
+  role: "admin" | "user";
 };
 
 const DEFAULT_PROFILE: UserProfile = {
   calorieLimit: 2100,
+  role: "user",
 };
 
 export async function getUserProfile(user: User) {

@@ -9,7 +9,7 @@ import {
 //
 import { UserProfile, getUserProfile } from "./user-profiles.service";
 
-export type setUserFn = (user: User, profile: UserProfile) => void;
+export type setUserFn = (user?: User, profile?: UserProfile) => void;
 
 let ui: firebaseui.auth.AuthUI;
 
@@ -20,8 +20,11 @@ export function initAuth() {
 
 export function subscribeToAuthChanges(setUser: setUserFn) {
   const auth = getAuth();
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
+  return onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      setUser();
+      return;
+    }
 
     const profile = await getUserProfile(user);
     setUser(user, profile);

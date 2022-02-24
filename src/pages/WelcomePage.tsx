@@ -1,7 +1,24 @@
+import React, { useEffect } from "react";
 import { Stack, Typography } from "@mui/material";
-import React from "react";
+import { useNavigate } from "react-router-dom";
+//
+import { useUserContext } from "../context/UserContext";
 
-export function WelcomePage(props) {
+const HOMEPAGES = {
+  admin: "/admin",
+  user: "/",
+};
+
+export function WelcomePage() {
+  const navigate = useNavigate();
+  const [userState] = useUserContext();
+
+  useEffect(() => {
+    if (userState.user && userState.profile) {
+      navigate(HOMEPAGES[userState.profile.role], { replace: true });
+    }
+  }, [userState, navigate]);
+
   return (
     <Stack alignItems="center" sx={{ m: 4 }}>
       <Typography variant="h6">Welcome!</Typography>

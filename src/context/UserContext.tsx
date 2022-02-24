@@ -4,6 +4,7 @@ import { UserProfile } from "../api/user-profiles.service";
 import { noop } from "../utils";
 
 type UserState = {
+  initialized?: boolean;
   profile?: UserProfile;
   user?: User;
 };
@@ -24,7 +25,7 @@ const UserContext = createContext<UserContextAPI>([{}, noop]);
 export const UserContextProvider = (props: UserContextProviderProps) => {
   const { children } = props;
 
-  const [settings, set] = useState<UserState>({});
+  const [settings, set] = useState<UserState>({ initialized: false });
   // console.log("UserContextProvider: render");
 
   return (

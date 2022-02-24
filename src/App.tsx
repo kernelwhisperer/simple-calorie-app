@@ -52,7 +52,14 @@ export function App() {
                       </RequireAuth>
                     }
                   />
-                  <Route path="/admin" element={<AdminPage />} />
+                  <Route
+                    path="/admin"
+                    element={
+                      <RequireAuth role="admin">
+                        <AdminPage />
+                      </RequireAuth>
+                    }
+                  />
                   <Route path="/welcome" element={<WelcomePage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
