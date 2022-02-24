@@ -11,6 +11,7 @@ import {
   orderBy,
   query,
   setDoc,
+  where,
 } from "firebase/firestore";
 
 export interface FoodEntry {
@@ -26,17 +27,23 @@ export interface NewFoodEntry {
   timestamp: Date;
 }
 
-export async function getFoodEntries() {
+export async function getFoodEntries(userId?: string) {
+  if (!userId) throw new Error("UserId missing");
+
   const db = getFirestore();
   const foodEntriesCol = collection(db, "food-entries");
-  const foodEntriesSnapshot = await getDocs(foodEntriesCol);
+  const q = query(foodEntriesCol, where("owner", "==", userId));
+  const foodEntriesSnapshot = await getDocs(q);
   return foodEntriesSnapshot.docs.map(mapDocToFoodEntry);
 }
 
-export async function createFoodEntry(newEntry: NewFoodEntry) {
+export async function createFoodEntry(newEntry: NewFoodEntry, userId?: string) {
+  if (!userId) throw new Error("UserId missing");
+
   const data = {
     ...newEntry,
     cheatDay: false,
+    owner: userId,
     timestamp: Timestamp.fromDate(newEntry.timestamp),
   };
 
@@ -67,10 +74,19 @@ export async function deleteFoodEntry(foodEntryId: string) {
 
 export type onListUpdateType = (list: FoodEntry[]) => void;
 
-export async function subscribeToFoodEntries(onListUpdate: onListUpdateType) {
+export async function subscribeToFoodEntries(
+  onListUpdate: onListUpdateType,
+  userId?: string
+) {
+  if (!userId) throw new Error("UserId missing");
+
   const db = getFirestore();
   const foodEntriesCol = collection(db, "food-entries");
-  const q = query(foodEntriesCol, orderBy("timestamp", "desc"));
+  const q = query(
+    foodEntriesCol,
+    where("owner", "==", userId),
+    orderBy("timestamp", "desc")
+  );
 
   const unsubscribe = onSnapshot(q, (querySnapshot) => {
     onListUpdate(querySnapshot.docs.map(mapDocToFoodEntry));

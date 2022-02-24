@@ -23,17 +23,20 @@ import { useUserContext } from "../context/UserContext";
 
 export function FrontPage() {
   const { enqueueSnackbar } = useSnackbar();
+  const [userState] = useUserContext();
 
   const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState<FoodEntry[]>([]);
   const unsubscribeRef = useRef<() => void>();
 
   const subscribe = useCallback(async () => {
+    if (!userState.user) return;
+
     unsubscribeRef.current = await subscribeToFoodEntries((list) => {
       setList(list);
       setIsLoading(false);
-    });
-  }, [unsubscribeRef, setList, setIsLoading]);
+    }, userState.user?.uid);
+  }, [unsubscribeRef, setList, setIsLoading, userState]);
 
   useEffect(() => {
     subscribe();
@@ -47,7 +50,7 @@ export function FrontPage() {
   const handleSubmit = useCallback(
     async (newEntry: NewFoodEntry) => {
       try {
-        await createFoodEntry(newEntry);
+        await createFoodEntry(newEntry, userState.user?.uid);
         enqueueSnackbar("New food entry saved", {
           variant: "success",
         });
@@ -61,7 +64,7 @@ export function FrontPage() {
       }
       return false;
     },
-    [enqueueSnackbar]
+    [enqueueSnackbar, userState]
   );
 
   const handleDelete = useCallback(
@@ -115,8 +118,6 @@ export function FrontPage() {
 
     return calorieMap;
   }, [list]);
-
-  const [userState] = useUserContext();
 
   return (
     <Stack spacing={2} sx={{ p: 4 }}>
