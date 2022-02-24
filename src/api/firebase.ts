@@ -2,13 +2,13 @@ import { initializeApp } from "firebase/app";
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAuhcFTdEsCgXyVHJeWyqXvi_mtxs3OUOg",
-  appId: "1:253041357697:web:e7ac6b9b169be37bfb6e80",
-  authDomain: "simple-calorie-app-0.firebaseapp.com",
-  measurementId: "G-TE1MW2DGME",
-  messagingSenderId: "253041357697",
-  projectId: "simple-calorie-app-0",
-  storageBucket: "simple-calorie-app-0.appspot.com",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
 };
 
 // Initialize Firebase
