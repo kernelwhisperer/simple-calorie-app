@@ -3,6 +3,7 @@ export function noop() {}
 
 // cc: https://stackoverflow.com/a/33076482
 export const computeInitials = memoize((name) => {
+  if (!name) return "";
   let initials = name.match(/\b\w/g) || [];
   initials = ((initials.shift() || "") + (initials.pop() || "")).toUpperCase();
   return initials;

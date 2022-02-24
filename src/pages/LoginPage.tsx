@@ -4,11 +4,13 @@ import {
   Button,
   Dialog,
   DialogTitle,
+  Fade,
   Stack,
   Toolbar,
   Typography,
 } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Spring, animated } from "react-spring";
 import { Box } from "@mui/system";
 import { Link } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -81,30 +83,49 @@ export function LoginPage() {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <Typography
-              component={Link}
-              variant="h6"
-              to="/"
-              sx={{ flexGrow: 1, textDecoration: "none" }}
-              color="primary"
+            <Spring
+              config={{
+                friction: 50,
+                tension: 210,
+                velocity: 0.033,
+              }}
+              delay={200}
+              from={{
+                flexGrow: 1,
+                opacity: 0,
+                transform: "translate3d(-80px,0,0)",
+              }}
+              to={{ flexGrow: 1, opacity: 1, transform: "translate3d(0,0,0)" }}
             >
-              Simple Calorie App
-            </Typography>
-            {userState.initialized && !userState.user && (
+              {(styles) => (
+                <animated.div style={styles}>
+                  <Typography
+                    component={Link}
+                    variant="h6"
+                    to="/"
+                    sx={{ textDecoration: "none" }}
+                    color="primary"
+                  >
+                    Simple Calorie App
+                  </Typography>
+                </animated.div>
+              )}
+            </Spring>
+            <Fade in={userState.initialized && !userState.user}>
               <Button color="inherit" onClick={() => setOpen(true)}>
                 Login
               </Button>
-            )}
-            {userState.user && (
+            </Fade>
+            <Fade in={!!userState.user}>
               <Stack direction="row" spacing={2}>
                 <Button color="inherit" onClick={handleSignout}>
                   Sign out
                 </Button>
                 <Avatar sx={{ bgcolor: "primary.main" }}>
-                  {computeInitials(userState.user.displayName)}
+                  {computeInitials(userState.user?.displayName)}
                 </Avatar>
               </Stack>
-            )}
+            </Fade>
           </Toolbar>
         </AppBar>
       </Box>

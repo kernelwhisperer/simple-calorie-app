@@ -1,4 +1,11 @@
 import {
+  AddRounded,
+  CancelRounded,
+  DeleteRounded,
+  EditRounded,
+  FilterListRounded,
+} from "@mui/icons-material";
+import {
   Box,
   Checkbox,
   CircularProgress,
@@ -16,16 +23,9 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-  alpha,
 } from "@mui/material";
-import {
-  CancelRounded,
-  DeleteRounded,
-  FilterListRounded,
-  WarningRounded,
-} from "@mui/icons-material";
 import React, { useMemo, useState } from "react";
-import { add, compareAsc, format } from "date-fns";
+import { add, compareAsc } from "date-fns";
 import { animated, useSpring, useTransition } from "react-spring";
 import { DateRangePicker } from "@mui/lab";
 //
@@ -33,30 +33,22 @@ import { FoodEntry } from "../api/food-entries.service";
 import { noop } from "../utils";
 
 type FoodEntryListProps = {
-  calorieLimit?: number;
-  calorieMap: Record<string, number>;
   isLoading: boolean;
   list: FoodEntry[];
+  onAddRequest?: () => void;
   onDelete?: (foodEntryId: string) => Promise<boolean>;
-  onUpdate?: (
-    foodEntryId: string,
-    update: Partial<FoodEntry>
-  ) => Promise<boolean>;
+  onUpdateRequest?: (foodEntryId: string) => void;
 };
 
 const AnimatedTableRow = animated(TableRow);
 
-const warningStyle = (theme) =>
-  alpha(theme.palette.warning.main, theme.palette.action.activatedOpacity);
-
-export function FoodEntryList(props: FoodEntryListProps) {
+export function FoodEntryListAdmin(props: FoodEntryListProps) {
   const {
-    calorieLimit = 0,
-    calorieMap,
     isLoading,
     list,
+    onAddRequest = noop,
     onDelete = noop,
-    onUpdate = noop,
+    onUpdateRequest = noop,
   } = props;
 
   const [filtering, setFiltering] = useState(false);
@@ -97,54 +89,42 @@ export function FoodEntryList(props: FoodEntryListProps) {
   });
 
   const rows = transition((props, item) => {
-    const calorieDelta =
-      calorieMap[format(item.timestamp, "yyyy-MM-dd")] - calorieLimit;
-
     return (
       <AnimatedTableRow
         key={item.id}
         style={props}
         sx={{
           "&:last-child td, &:last-child th": { border: 0 },
-          bgcolor: calorieDelta > 0 ? warningStyle : "",
         }}
       >
         <TableCell>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            {calorieDelta > 0 && (
-              <Tooltip
-                title={`You have exceeded the calorie limit for the day by ${calorieDelta}`}
-              >
-                <WarningRounded color="warning" fontSize="small" />
-              </Tooltip>
-            )}
-            <span>{item.timestamp.toLocaleString()}</span>
-          </Stack>
+          <span>{item.timestamp.toLocaleString()}</span>
         </TableCell>
+        <TableCell>{item.owner}</TableCell>
         <TableCell>{item.name}</TableCell>
         <TableCell align="right">{item.calories}</TableCell>
         <TableCell align="right">
-          <Checkbox
-            color="primary"
-            checked={item.cheatDay}
-            onChange={() => {
-              onUpdate(item.id, { cheatDay: !item.cheatDay });
-            }}
-            inputProps={{
-              "aria-label": "mark as cheat-day",
-            }}
-          />
+          <Checkbox color="primary" checked={item.cheatDay} disabled />
         </TableCell>
         <TableCell align="right">
-          <IconButton
-            aria-label="delete"
-            onClick={() => {
-              if (!item.id) return;
-              onDelete(item.id);
-            }}
-          >
-            <DeleteRounded />
-          </IconButton>
+          <Stack direction="row">
+            <IconButton
+              aria-label="update"
+              onClick={() => {
+                onUpdateRequest(item.id);
+              }}
+            >
+              <EditRounded />
+            </IconButton>
+            <IconButton
+              aria-label="delete"
+              onClick={() => {
+                onDelete(item.id);
+              }}
+            >
+              <DeleteRounded />
+            </IconButton>
+          </Stack>
         </TableCell>
       </AnimatedTableRow>
     );
@@ -186,23 +166,35 @@ export function FoodEntryList(props: FoodEntryListProps) {
             />
             {filtering ? (
               <Tooltip title="Cancel">
-                <IconButton onClick={() => setFiltering(false)}>
+                <IconButton
+                  aria-label="cancel filtering"
+                  onClick={() => setFiltering(false)}
+                >
                   <CancelRounded />
                 </IconButton>
               </Tooltip>
             ) : (
               <Tooltip title="Filter list">
-                <IconButton onClick={() => setFiltering(true)}>
+                <IconButton
+                  aria-label="filter list"
+                  onClick={() => setFiltering(true)}
+                >
                   <FilterListRounded />
                 </IconButton>
               </Tooltip>
             )}
+            <Tooltip title="Add food entry">
+              <IconButton aria-label="add food entry" onClick={onAddRequest}>
+                <AddRounded />
+              </IconButton>
+            </Tooltip>
           </Toolbar>
           <TableContainer>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ width: "208px" }}>Date & time</TableCell>
+                  <TableCell sx={{ width: "272px" }}>UserId</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell align="right">Calories</TableCell>
                   <TableCell align="right" sx={{ width: "120px" }}>

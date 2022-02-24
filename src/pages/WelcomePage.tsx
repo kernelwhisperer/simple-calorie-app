@@ -1,5 +1,5 @@
+import { Fade, Stack, Typography } from "@mui/material";
 import React, { useEffect } from "react";
-import { Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 //
 import { useUserContext } from "../context/UserContext";
@@ -20,11 +20,13 @@ export function WelcomePage() {
   }, [userState, navigate]);
 
   return (
-    <Stack alignItems="center" sx={{ m: 4 }}>
-      <Typography variant="h6">Welcome!</Typography>
-      <Typography color="text.secondary">
-        Log in or sign up to get started.
-      </Typography>
-    </Stack>
+    <Fade in>
+      <Stack alignItems="center" sx={{ m: 4 }}>
+        <Typography variant="h6">Welcome!</Typography>
+        <Typography color="text.secondary">
+          Log in or sign up to get started.
+        </Typography>
+      </Stack>
+    </Fade>
   );
 }

@@ -44,7 +44,7 @@ export function FoodEntryForm(props: FoodEntryFormProps) {
 
     if (!isValid) return;
 
-    const newEntry = {
+    const newEntry: NewFoodEntry = {
       calories: parseFloat(calories),
       name,
       timestamp: timestamp as Date,
