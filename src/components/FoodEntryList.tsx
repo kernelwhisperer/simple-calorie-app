@@ -96,6 +96,60 @@ export function FoodEntryList(props: FoodEntryListProps) {
     trail: 400 / list.length,
   });
 
+  const rows = transition((props, item) => {
+    const calorieDelta =
+      calorieMap[format(item.timestamp, "yyyy-MM-dd")] - calorieLimit;
+
+    return (
+      <AnimatedTableRow
+        key={item.id}
+        style={props}
+        sx={{
+          "&:last-child td, &:last-child th": { border: 0 },
+          bgcolor: calorieDelta > 0 ? warningStyle : "",
+        }}
+      >
+        <TableCell>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            {calorieDelta > 0 && (
+              <Tooltip
+                title={`You have exceeded the calorie limit for the day by ${calorieDelta}`}
+              >
+                <WarningRounded color="warning" fontSize="small" />
+              </Tooltip>
+            )}
+            <span>{item.timestamp.toLocaleString()}</span>
+          </Stack>
+        </TableCell>
+        <TableCell>{item.name}</TableCell>
+        <TableCell align="right">{item.calories}</TableCell>
+        <TableCell align="right">
+          <Checkbox
+            color="primary"
+            checked={item.cheatDay}
+            onChange={() => {
+              onUpdate(item.id, { cheatDay: !item.cheatDay });
+            }}
+            inputProps={{
+              "aria-label": "mark as cheat-day",
+            }}
+          />
+        </TableCell>
+        <TableCell align="right">
+          <IconButton
+            aria-label="delete"
+            onClick={() => {
+              if (!item.id) return;
+              onDelete(item.id);
+            }}
+          >
+            <DeleteRounded />
+          </IconButton>
+        </TableCell>
+      </AnimatedTableRow>
+    );
+  });
+
   return (
     <>
       {isLoading && (
@@ -152,67 +206,18 @@ export function FoodEntryList(props: FoodEntryListProps) {
                   <TableCell align="right" sx={{ width: "72px" }}></TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {transition((props, item) => {
-                  const calorieDelta =
-                    calorieMap[format(item.timestamp, "yyyy-MM-dd")] -
-                    calorieLimit;
-
-                  return (
-                    <AnimatedTableRow
-                      key={item.id}
-                      style={props}
-                      sx={{
-                        "&:last-child td, &:last-child th": { border: 0 },
-                        bgcolor: calorieDelta > 0 ? warningStyle : "",
-                      }}
-                    >
-                      <TableCell>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          {calorieDelta > 0 && (
-                            <Tooltip
-                              title={`You have exceeded the calorie limit for the day by ${calorieDelta}`}
-                            >
-                              <WarningRounded
-                                color="warning"
-                                fontSize="small"
-                              />
-                            </Tooltip>
-                          )}
-                          <span>{item.timestamp.toLocaleString()}</span>
-                        </Stack>
-                      </TableCell>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell align="right">{item.calories}</TableCell>
-                      <TableCell align="right">
-                        <Checkbox
-                          color="primary"
-                          checked={item.cheatDay}
-                          onChange={() => {
-                            onUpdate(item.id, { cheatDay: !item.cheatDay });
-                          }}
-                          inputProps={{
-                            "aria-label": "mark as cheat-day",
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <IconButton
-                          aria-label="delete"
-                          onClick={() => {
-                            if (!item.id) return;
-                            onDelete(item.id);
-                          }}
-                        >
-                          <DeleteRounded />
-                        </IconButton>
-                      </TableCell>
-                    </AnimatedTableRow>
-                  );
-                })}
-              </TableBody>
+              <TableBody>{rows}</TableBody>
             </Table>
           </TableContainer>
+          {rows.props.children.length === 0 && (
+            <Stack alignItems="center" sx={{ p: 3 }}>
+              <Fade in>
+                <Typography variant="overline" color="text.secondary">
+                  Nothing to see here!
+                </Typography>
+              </Fade>
+            </Stack>
+          )}
         </Paper>
       </animated.div>
     </>

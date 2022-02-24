@@ -4,55 +4,99 @@ import {
   Button,
   Dialog,
   DialogTitle,
+  Stack,
   Toolbar,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from "react";
 import { Box } from "@mui/system";
+import { useSnackbar } from "notistack";
 //
-import { initAuth, login } from "../api/firebase-auth";
+import {
+  initAuth,
+  logIn,
+  requestSignOut,
+  subscribeToAuthChanges,
+} from "../api/firebase-auth";
 import { computeInitials } from "../utils";
 import { useUserContext } from "../context/UserContext";
 
 export function LoginPage() {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
 
+  const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
   const [userState, setUserState] = useUserContext();
   const { user } = userState;
 
   useEffect(() => {
-    initAuth((user, profile) => {
+    initAuth();
+  }, []);
+
+  useEffect(() => {
+    subscribeToAuthChanges((user, profile) => {
       setUserState({ profile, user });
-      setLoading(false);
+      setOpen(false);
+      navigate("/", { replace: true });
+      enqueueSnackbar("Signed in", {
+        variant: "info",
+      });
     });
-  }, [setLoading, setUserState]);
+  }, [navigate, setUserState, enqueueSnackbar, setOpen]);
 
   useEffect(() => {
     if (open) {
       setTimeout(() => {
-        login();
+        logIn();
       }, 1000);
     }
   }, [open]);
+
+  const handleSignout = useCallback(async () => {
+    try {
+      await requestSignOut();
+      enqueueSnackbar("Signed out", {
+        variant: "info",
+      });
+      setUserState({});
+    } catch (err) {
+      if (err instanceof TypeError) {
+        enqueueSnackbar(err.toString(), {
+          variant: "error",
+        });
+      }
+    }
+  }, [enqueueSnackbar, setUserState]);
 
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography
+              component={Link}
+              variant="h6"
+              to="/"
+              sx={{ flexGrow: 1, textDecoration: "none" }}
+              color="primary"
+            >
               Simple Calorie App
             </Typography>
-            {!loading && !user && (
+            {!user && (
               <Button color="inherit" onClick={() => setOpen(true)}>
                 Login
               </Button>
             )}
             {user && (
-              <Avatar sx={{ bgcolor: "primary.main" }}>
-                {computeInitials(user.displayName)}
-              </Avatar>
+              <Stack direction="row" spacing={2}>
+                <Button color="inherit" onClick={handleSignout}>
+                  Sign out
+                </Button>
+                <Avatar sx={{ bgcolor: "primary.main" }}>
+                  {computeInitials(user.displayName)}
+                </Avatar>
+              </Stack>
             )}
           </Toolbar>
         </AppBar>
