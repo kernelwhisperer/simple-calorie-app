@@ -76,7 +76,7 @@ export function FoodEntryStats(props: FoodEntryStatsProps) {
             Average number of calories per user in the last 7 days:
           </Typography>
           <Typography variant="h4">
-            {averageCaloriesAddedPerUserPastSevenDays}
+            {Math.round(averageCaloriesAddedPerUserPastSevenDays)}
           </Typography>
         </Stack>
       </Paper>
