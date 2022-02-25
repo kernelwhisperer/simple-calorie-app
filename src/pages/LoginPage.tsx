@@ -88,12 +88,12 @@ export function LoginPage() {
         }}
         delay={200}
         from={{
-          flexGrow: 1,
           opacity: 0,
+          transform: "translate3d(0,-80px,1px)",
         }}
         to={{
-          flexGrow: 1,
           opacity: 1,
+          transform: "translate3d(0,0px,1px)",
         }}
       >
         {(styles) => (
@@ -112,12 +112,13 @@ export function LoginPage() {
                 <Fade
                   in={userState.initialized && !userState.user}
                   unmountOnExit
+                  timeout={{ exit: 0 }}
                 >
                   <Button color="inherit" onClick={() => setOpen(true)}>
                     Login
                   </Button>
                 </Fade>
-                <Fade in={!!userState.user} unmountOnExit>
+                <Fade in={!!userState.user} unmountOnExit timeout={{ exit: 0 }}>
                   <Stack direction="row" spacing={2}>
                     <Button color="inherit" onClick={handleSignout}>
                       Sign out

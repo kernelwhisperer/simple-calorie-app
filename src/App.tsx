@@ -37,7 +37,13 @@ export function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ bgcolor: "background.default" }}>
+      <Box
+        sx={{
+          bgcolor: "background.default",
+          height: "100%",
+          transformStyle: "preserve-3d",
+        }}
+      >
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <SnackbarProvider>
             <UserContextProvider>
