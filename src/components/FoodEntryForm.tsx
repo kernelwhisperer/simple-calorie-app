@@ -1,5 +1,6 @@
 import { Button, Stack, TextField } from "@mui/material";
 import React, { useCallback, useState } from "react";
+import { Spring, animated } from "react-spring";
 import DateTimePicker from "@mui/lab/DateTimePicker";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 //
@@ -68,47 +69,68 @@ export function FoodEntryForm(props: FoodEntryFormProps) {
   ]);
 
   return (
-    <Stack
-      direction="row"
-      spacing={2}
-      justifyContent="center"
-      alignItems="baseline"
+    <Spring
+      config={{
+        friction: 50,
+        tension: 210,
+        velocity: 0.033,
+      }}
+      delay={1000}
+      from={{
+        opacity: 0,
+        transform: "translate3d(0,-500px,0)",
+      }}
+      to={{
+        opacity: 1,
+        transform: "translate3d(0,0px,0)",
+      }}
     >
-      <DateTimePicker
-        label="Date & time"
-        value={timestamp}
-        maxDate={new Date()}
-        onChange={setTimestamp}
-        renderInput={(params) => (
-          <TextField
-            sx={{ width: 260 }}
-            {...params}
-            error={!!timestampHelper}
-            required
-            helperText={timestampHelper}
-          />
-        )}
-      />
-      <TextField
-        error={!!nameHelper}
-        required
-        label="Name"
-        helperText={nameHelper}
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-      />
-      <TextField
-        error={!!caloriesHelper}
-        required
-        label="Calories"
-        helperText={caloriesHelper}
-        type="number"
-        value={calories}
-        onChange={(event) => setCalories(event.target.value)}
-      />
-      <Button onClick={handleClick} endIcon={<SendRoundedIcon />}>
-        Add food entry
-      </Button>
-    </Stack>
+      {(styles) => (
+        <animated.div style={styles}>
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="center"
+            alignItems="baseline"
+          >
+            <DateTimePicker
+              label="Date & time"
+              value={timestamp}
+              maxDate={new Date()}
+              onChange={setTimestamp}
+              renderInput={(params) => (
+                <TextField
+                  sx={{ width: 260 }}
+                  {...params}
+                  error={!!timestampHelper}
+                  required
+                  helperText={timestampHelper}
+                />
+              )}
+            />
+            <TextField
+              error={!!nameHelper}
+              required
+              label="Name"
+              helperText={nameHelper}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+            <TextField
+              error={!!caloriesHelper}
+              required
+              label="Calories"
+              helperText={caloriesHelper}
+              type="number"
+              value={calories}
+              onChange={(event) => setCalories(event.target.value)}
+            />
+            <Button onClick={handleClick} endIcon={<SendRoundedIcon />}>
+              Add food entry
+            </Button>
+          </Stack>
+        </animated.div>
+      )}
+    </Spring>
   );
 }

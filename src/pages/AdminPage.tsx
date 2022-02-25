@@ -12,6 +12,7 @@ import {
 } from "../api/food-entries.service";
 import { FoodEntryDialog } from "../components/FoodEntryDialog";
 import { FoodEntryListAdmin } from "../components/FoodEntryListAdmin";
+import { FoodEntryStats } from "../components/FoodEntryStats";
 import { getUserIdList } from "../api/user-profiles.service";
 import { useUserContext } from "../context/UserContext";
 
@@ -68,7 +69,6 @@ export function AdminPage() {
 
   const handleUpdate = useCallback(
     async (foodEntryId: string, update: Partial<FoodEntry>) => {
-      console.log("📜 LOG > update", update);
       try {
         await updateFoodEntry(foodEntryId, update);
         enqueueSnackbar("Food entry updated", {
@@ -124,6 +124,7 @@ export function AdminPage() {
 
   return (
     <Stack spacing={2} sx={{ p: 4 }}>
+      <FoodEntryStats list={list} />
       <FoodEntryDialog
         onCloseRequest={() => setModalOpen(false)}
         open={modalOpen}

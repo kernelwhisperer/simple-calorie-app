@@ -112,7 +112,7 @@ export function FrontPage() {
 
     list.forEach((item) => {
       const date = format(item.timestamp, "yyyy-MM-dd");
-      calorieMap[date] = calorieMap[date] || 0;
+      if (!calorieMap[date]) calorieMap[date] = 0;
       if (!item.cheatDay) calorieMap[date] += item.calories;
     });
 

@@ -202,7 +202,7 @@ export function FoodEntryList(props: FoodEntryListProps) {
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ width: "208px" }}>Date & time</TableCell>
+                  <TableCell sx={{ width: 216 }}>Date & time</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell align="right">Calories</TableCell>
                   <TableCell align="right" sx={{ width: "120px" }}>

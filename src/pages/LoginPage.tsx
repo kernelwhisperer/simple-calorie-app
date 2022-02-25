@@ -80,55 +80,58 @@ export function LoginPage() {
 
   return (
     <>
-      <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
-          <Toolbar>
-            <Spring
-              config={{
-                friction: 50,
-                tension: 210,
-                velocity: 0.033,
-              }}
-              delay={200}
-              from={{
-                flexGrow: 1,
-                opacity: 0,
-                transform: "translate3d(-80px,0,0)",
-              }}
-              to={{ flexGrow: 1, opacity: 1, transform: "translate3d(0,0,0)" }}
-            >
-              {(styles) => (
-                <animated.div style={styles}>
-                  <Typography
-                    component={Link}
-                    variant="h6"
-                    to="/"
-                    sx={{ textDecoration: "none" }}
-                    color="primary"
-                  >
-                    Simple Calorie App
-                  </Typography>
-                </animated.div>
-              )}
-            </Spring>
-            <Fade in={userState.initialized && !userState.user}>
-              <Button color="inherit" onClick={() => setOpen(true)}>
-                Login
-              </Button>
-            </Fade>
-            <Fade in={!!userState.user}>
-              <Stack direction="row" spacing={2}>
-                <Button color="inherit" onClick={handleSignout}>
-                  Sign out
-                </Button>
-                <Avatar sx={{ bgcolor: "primary.main" }}>
-                  {computeInitials(userState.user?.displayName)}
-                </Avatar>
-              </Stack>
-            </Fade>
-          </Toolbar>
-        </AppBar>
-      </Box>
+      <Spring
+        config={{
+          friction: 50,
+          tension: 210,
+          velocity: 0.033,
+        }}
+        delay={200}
+        from={{
+          flexGrow: 1,
+          opacity: 0,
+        }}
+        to={{
+          flexGrow: 1,
+          opacity: 1,
+        }}
+      >
+        {(styles) => (
+          <animated.div style={styles}>
+            <AppBar position="sticky">
+              <Toolbar>
+                <Typography
+                  component={Link}
+                  variant="h6"
+                  to="/"
+                  sx={{ flexGrow: 1, textDecoration: "none" }}
+                  color="primary"
+                >
+                  Simple Calorie App
+                </Typography>
+                <Fade
+                  in={userState.initialized && !userState.user}
+                  unmountOnExit
+                >
+                  <Button color="inherit" onClick={() => setOpen(true)}>
+                    Login
+                  </Button>
+                </Fade>
+                <Fade in={!!userState.user} unmountOnExit>
+                  <Stack direction="row" spacing={2}>
+                    <Button color="inherit" onClick={handleSignout}>
+                      Sign out
+                    </Button>
+                    <Avatar sx={{ bgcolor: "primary.main" }}>
+                      {computeInitials(userState.user?.displayName)}
+                    </Avatar>
+                  </Stack>
+                </Fade>
+              </Toolbar>
+            </AppBar>
+          </animated.div>
+        )}
+      </Spring>
       <Dialog onClose={() => setOpen(false)} open={open}>
         <DialogTitle>Log in or Sign up</DialogTitle>
         <div id="firebaseui-auth-container"></div>
