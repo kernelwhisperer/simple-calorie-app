@@ -1,3 +1,4 @@
+import "firebaseui/dist/firebaseui.css";
 import * as firebaseui from "firebaseui";
 import {
   EmailAuthProvider,

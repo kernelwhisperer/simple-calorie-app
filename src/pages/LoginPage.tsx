@@ -2,16 +2,14 @@ import {
   AppBar,
   Avatar,
   Button,
-  Dialog,
-  DialogTitle,
   Fade,
+  Modal,
   Stack,
   Toolbar,
   Typography,
 } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Spring, animated } from "react-spring";
-import { Box } from "@mui/system";
 import { Link } from "react-router-dom";
 import { useSnackbar } from "notistack";
 //
@@ -133,10 +131,9 @@ export function LoginPage() {
           </animated.div>
         )}
       </Spring>
-      <Dialog onClose={() => setOpen(false)} open={open}>
-        <DialogTitle>Log in or Sign up</DialogTitle>
-        <div id="firebaseui-auth-container"></div>
-      </Dialog>
+      <Modal onClose={() => setOpen(false)} open={open}>
+        <div id="firebaseui-auth-container" style={{ marginTop: 200 }}></div>
+      </Modal>
     </>
   );
 }
