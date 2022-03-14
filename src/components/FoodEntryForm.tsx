@@ -36,7 +36,7 @@ export function FoodEntryForm(props: FoodEntryFormProps) {
     } else {
       setCaloriesHelper("");
     }
-    if (!name) {
+    if (!name.trim()) {
       setNameHelper("Cannot be empty.");
       isValid = false;
     } else {

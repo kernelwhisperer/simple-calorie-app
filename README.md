@@ -9,3 +9,9 @@ Admin demo: <https://youtu.be/C9sDpcj7-kk>
 npm i
 npm start
 ```
+
+1. missing validation
+2. code structure not scalable
+3. NaN in the console.error
+4. Cheat day not should be calculated in the average
+5. Error message food entry in the future
